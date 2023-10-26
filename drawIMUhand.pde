@@ -27,7 +27,7 @@ void serialSetup(){
         {
         serialStrings[j][i] = "h";  //initialising the values so it doesn't become Null
         }
-    }   //
+    }   
   
     port = new Serial(this, "COM10", 120000);  port.bufferUntil('\n');
 }
