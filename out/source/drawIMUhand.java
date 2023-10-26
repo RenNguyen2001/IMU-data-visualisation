@@ -28,12 +28,25 @@ String[][] serialStrings = new String[5][3];  //5 fingers, 3 values (the joint a
 
 float grid = 400;
 
+int WHITE = 0xFFFFFFFF;
+int RED = 0xFFFF0000;
+int BLUE = 0xFF0000FF;
+int GREEN = 0xFF00FF00;
+int BLACK = 0xFF000000;
+
 class imuData{
-    int index;
     float[] angle = new float[3];
 }
 
+imuData[] imuGlobalObj = new imuData[5];
+
+
  public void setup(){
+    for(char i = 0; i < 5; i++)
+    {
+        imuGlobalObj[i] = new imuData();
+    }
+    
     /* size commented out by preprocessor */;
     setup2D();
     serialSetup();
@@ -53,12 +66,14 @@ class imuData{
 }
 
  public void draw(){
-    imuData imuDataObj = new imuData();  //using this object to pass by reference
-    getSerialData(imuDataObj);
+    getSerialData();
     background(15,20,30);
-   
-    drawFinger2D(imuDataObj.angle, width/2, height/2);
-    
+
+    //drawFinger2D(imuGlobalObj[0].angle, width/2, height/2, RED);
+    drawFinger2D(imuGlobalObj[1].angle, width/2, height/2, GREEN);
+    //drawFinger2D(imuGlobalObj[2].angle, width/2, height/2, WHITE);
+    drawFinger2D(imuGlobalObj[3].angle, width/2, height/2, BLUE);
+    drawFinger2D(imuGlobalObj[4].angle, width/2, height/2, BLACK);
     
 }
 
@@ -66,8 +81,8 @@ class imuData{
     rectMode(CORNER);
 }
 
- public void drawFinger2D(float jointAng[], float x, float y){
-    int fingerLen = 100, fingerWid = 10;
+ public void drawFinger2D(float jointAng[], float x, float y, int colour){
+    char fingerLen = 100, fingerWid = 10;
     float[] angleSum = new float[3];
 
     angleSum[0] = radians(jointAng[2]);
@@ -76,6 +91,7 @@ class imuData{
     
     //drawing the palm/hand
     push();
+    fill(colour);
     translate(x-fingerLen, y);
     rotate(0);
     rect(0,0,fingerLen,fingerWid);
@@ -85,6 +101,7 @@ class imuData{
     for(char i = 0; i < 2; i++)
     {
         push();
+        fill(colour);
         translate(x, y);
         rotate(angleSum[i]);
         rect(0,0,fingerLen,fingerWid);
@@ -96,6 +113,7 @@ class imuData{
     }
 
     push();
+    fill(colour);
     translate(x, y);
     rotate(angleSum[2]);
     rect(0,0,fingerLen,fingerWid);
@@ -106,7 +124,7 @@ class imuData{
 }
 
 
- public void getSerialData(imuData imuObj){
+ public void getSerialData(){
   if( port.available() > 0) // If data is available,
   { 
     serialData = port.readStringUntil('\n');         // read the entire string until the newline
@@ -114,13 +132,12 @@ class imuData{
     int indexNo;
     //splitting the string
     receiveVar = split(serialData, " ");  // index 0 finger strip num, 1 jointAng1(tip), 2 jointAng2(mid), 3 jointAng3(base) 
-    imuObj.index = PApplet.parseInt(receiveVar[0]);  println(imuObj.index);
+    indexNo = PApplet.parseInt(receiveVar[0]);  println(indexNo);
 
     //storing the values into an imu object
     for(char i = 0; i < 3; i++)
     {
-        serialStrings[imuObj.index][i] = receiveVar[i+1];
-        imuObj.angle[i] = parseFloat(receiveVar[i+1]);
+        imuGlobalObj[indexNo].angle[i] = parseFloat(receiveVar[i+1]);   //println(imuGlobalObj[indexNo].angle[i]);
     }
     port.clear();
   }
