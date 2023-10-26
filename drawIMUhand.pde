@@ -40,6 +40,10 @@ void draw(){
     {
         drawFinger2D(imuDataObj.angle, width/2, height/2);
     }
+    else if(imuDataObj.index == 2)
+    {
+        drawFinger2D(imuDataObj.angle, width/2, height/2);
+    }
     
 }
 

@@ -16,7 +16,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.IOException;
 
-public class drawSingleJoint extends PApplet {
+public class drawIMUhand extends PApplet {
 
 //creating a simple program to represent one joint
 
@@ -57,6 +57,10 @@ class imuData{
     getSerialData(imuDataObj);  println(imuDataObj.index);
     background(15,20,30);
     if(imuDataObj.index == 1)
+    {
+        drawFinger2D(imuDataObj.angle, width/2, height/2);
+    }
+    else if(imuDataObj.index == 2)
     {
         drawFinger2D(imuDataObj.angle, width/2, height/2);
     }
@@ -137,7 +141,7 @@ class imuData{
   public void settings() { size(900, 900); }
 
   static public void main(String[] passedArgs) {
-    String[] appletArgs = new String[] { "drawSingleJoint" };
+    String[] appletArgs = new String[] { "drawIMUhand" };
     if (passedArgs != null) {
       PApplet.main(concat(appletArgs, passedArgs));
     } else {
