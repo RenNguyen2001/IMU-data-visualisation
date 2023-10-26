@@ -21,9 +21,9 @@ void setup(){
 }
 
 void serialSetup(){
-    for(int j = 0; j < 5; j++)
+    for(char j = 0; j < 5; j++)
     {
-    for(int i = 0; i < 3; i++)
+    for(char i = 0; i < 3; i++)
         {
         serialStrings[j][i] = "h";  //initialising the values so it doesn't become Null
         }
@@ -34,16 +34,11 @@ void serialSetup(){
 
 void draw(){
     imuData imuDataObj = new imuData();  //using this object to pass by reference
-    getSerialData(imuDataObj);  println(imuDataObj.index);
+    getSerialData(imuDataObj);
     background(15,20,30);
-    if(imuDataObj.index == 1)
-    {
-        drawFinger2D(imuDataObj.angle, width/2, height/2);
-    }
-    else if(imuDataObj.index == 2)
-    {
-        drawFinger2D(imuDataObj.angle, width/2, height/2);
-    }
+   
+    drawFinger2D(imuDataObj.angle, width/2, height/2);
+    
     
 }
 
@@ -53,7 +48,12 @@ void setup2D(){
 
 void drawFinger2D(float jointAng[], float x, float y){
     int fingerLen = 100, fingerWid = 10;
+    float[] angleSum = new float[3];
 
+    angleSum[0] = radians(jointAng[2]);
+    angleSum[1] = radians(jointAng[2] + jointAng[1]);
+    angleSum[2] = radians(jointAng[2] + jointAng[1] + jointAng[0]);
+    
     //drawing the palm/hand
     push();
     translate(x-fingerLen, y);
@@ -62,36 +62,22 @@ void drawFinger2D(float jointAng[], float x, float y){
     rectMode(CORNER);
     pop();
 
-    //part of the finger that connects to the hand
+    for(char i = 0; i < 2; i++)
+    {
+        push();
+        translate(x, y);
+        rotate(angleSum[i]);
+        rect(0,0,fingerLen,fingerWid);
+        rectMode(CORNER);
+        pop();
+
+        x = x + fingerLen*cos(angleSum[i]);
+        y = y + fingerLen*sin(angleSum[i]);
+    }
+
     push();
     translate(x, y);
-    rotate(radians(jointAng[2]));
-    rect(0,0,fingerLen,fingerWid);
-    rectMode(CORNER);
-    pop();
-
-    //need to calculate the end point that phalange rotates to
-    //calculate the arc
-    float xCoord = x + fingerLen*cos(radians(jointAng[2]));
-    float yCoord = y + fingerLen*sin(radians(jointAng[2]));
-
-    push();
-    translate(xCoord, yCoord);
-    rotate(radians(jointAng[2]+jointAng[1]));
-    rect(0,0,fingerLen,fingerWid);
-    rectMode(CORNER);
-    pop();
-
-    //find the end point of the phalange
-    //the front of the phallenge is given be point (xCoord,yCoord)
-    //rotation will be around this point, this point will move
-
-    float xCoord2 = xCoord + fingerLen*cos(radians(jointAng[2]+jointAng[1]));
-    float yCoord2 = yCoord + fingerLen*sin(radians(jointAng[2]+jointAng[1]));
-
-    push();
-    translate(xCoord2, yCoord2);
-    rotate(radians(jointAng[2]+jointAng[1]+jointAng[0]));
+    rotate(angleSum[2]);
     rect(0,0,fingerLen,fingerWid);
     rectMode(CORNER);
     pop();
@@ -108,11 +94,14 @@ void getSerialData(imuData imuObj){
     int indexNo;
     //splitting the string
     receiveVar = split(serialData, " ");  // index 0 finger strip num, 1 jointAng1(tip), 2 jointAng2(mid), 3 jointAng3(base) 
-    imuObj.index = int(receiveVar[0]);
+    imuObj.index = int(receiveVar[0]);  println(imuObj.index);
 
     //storing the values into an imu object
-    serialStrings[imuObj.index][0] = receiveVar[1];  serialStrings[imuObj.index][1] = receiveVar[2];  serialStrings[imuObj.index][2] = receiveVar[3];
-    imuObj.angle[0] = parseFloat(receiveVar[1]);    imuObj.angle[1] = parseFloat(receiveVar[2]);    imuObj.angle[2] = parseFloat(receiveVar[3]);
+    for(char i = 0; i < 3; i++)
+    {
+        serialStrings[imuObj.index][i] = receiveVar[i+1];
+        imuObj.angle[i] = parseFloat(receiveVar[i+1]);
+    }
     port.clear();
   }
 }
