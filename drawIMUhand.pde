@@ -27,11 +27,12 @@ void setup(){
         imuGlobalObj[i] = new imuData();
     }
     
-    size(900,900);
-    setup2D();
-    serialSetup();
+    //size(900,900);  //setup2D
+    size(900,900,P3D);   //setup3D
+    //serialSetup();
     
 }
+
 
 void serialSetup(){
     for(char j = 0; j < 5; j++)
@@ -46,7 +47,16 @@ void serialSetup(){
 }
 
 void draw(){
+    //drawFinger3d(width/2, height/2);
+    //camera(mouseX, height/2, (height/2) / tan(PI/6), mouseX, height/2, 0, 0, 1, 0);
+    //drawFingerFunc2D();
+    draw3DExample(mouseX, mouseY);
+    
+}
+
+void drawFingerFunc2D(){
     getSerialData();
+    
     background(15,20,30);
 
     //drawFinger2D(imuGlobalObj[0].angle, width/2, height/2, RED);
@@ -54,11 +64,6 @@ void draw(){
     //drawFinger2D(imuGlobalObj[2].angle, width/2, height/2, WHITE);
     drawFinger2D(imuGlobalObj[3].angle, width/2, height/2, BLUE);
     drawFinger2D(imuGlobalObj[4].angle, width/2, height/2, BLACK);
-    
-}
-
-void setup2D(){
-    rectMode(CORNER);
 }
 
 void drawFinger2D(float jointAng[], float x, float y, int colour){
@@ -103,6 +108,102 @@ void drawFinger2D(float jointAng[], float x, float y, int colour){
     println(jointAng);
 }
 
+void drawFinger3d(float x, float y){
+    char fingerLen = 100, fingerWid = 10;
+    float[] angleSum = new float[3];
+    float[] jointAng = new float[3];
+
+
+    jointAng[0] = 45;   jointAng[1] = 45;   jointAng[2] = 45;
+
+    angleSum[0] = jointAng[2];
+    angleSum[1] = jointAng[2] + jointAng[1];
+    angleSum[2] = jointAng[2] + jointAng[1] + jointAng[0];
+    
+    background(100);
+
+    //drawing the palm/hand
+    push();
+    translate(x-fingerLen, y,0);
+    rotateShape(0,0,0);
+    stroke(255);
+    noFill();
+    rect(0,0,fingerLen,fingerWid);
+    rectMode(CORNER);
+    pop();
+
+    int i = 0;
+    push();
+    translate(x, y,0);
+    rotateShape(0,0,angleSum[i]);
+    stroke(255);
+    noFill();
+    rect(0,0,fingerLen,fingerWid);
+    rectMode(CORNER);
+    pop();
+
+    x = x + fingerLen*cos(radians(angleSum[i]));
+    y = y + fingerLen*sin(radians(angleSum[i]));
+
+    i = 1;
+    push();
+    translate(x, y,0);
+    rotateShape(0,0,angleSum[i]);
+    stroke(255);
+    noFill();
+    rect(0,0,fingerLen,fingerWid);
+    rectMode(CORNER);
+    pop();
+
+}
+
+void draw3DExample(float x, float y){
+    char fingerLen = 100, fingerWid = 10;
+    float[] angleSum = new float[3];
+    float[] jointAng = new float[3];
+
+    jointAng[0] = 45;   jointAng[1] = 45;   jointAng[2] = 45;
+
+    angleSum[0] = jointAng[2];
+    angleSum[1] = jointAng[2] + jointAng[1];
+    angleSum[2] = jointAng[2] + jointAng[1] + jointAng[0];
+
+    background(0);
+
+    push();
+    translate(x-fingerLen, y, 0);
+    stroke(255);
+    rotateX(radians(45));
+    rotateY(radians(0));
+    noFill();
+    box(fingerLen,fingerLen/4,fingerWid);
+    rectMode(CORNER);
+    pop();
+
+    int i = 0;
+    push();
+    translate(x, y, 0);
+    stroke(255);
+    rotateX(radians(45));
+    rotateY(radians(90));
+    noFill();
+    shapeMode(CORNER);
+    box(fingerLen,fingerLen/4,fingerWid);
+    
+    pop();
+
+    push();
+    translate(x, y, 0);
+    stroke(255);
+    rotateX(radians(45));
+    rotateY(radians(45));
+    noFill();
+    shapeMode(CORNER);
+    box(fingerLen,fingerLen/4,fingerWid);
+    
+    pop();
+}
+
 
 void getSerialData(){
   if( port.available() > 0) // If data is available,
@@ -121,4 +222,8 @@ void getSerialData(){
     }
     port.clear();
   }
+}
+
+void rotateShape(float xAng, float yAng, float zAng){
+    rotateX(radians(xAng)); rotateY(radians(yAng)); rotateZ(radians(zAng));
 }
