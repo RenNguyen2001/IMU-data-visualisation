@@ -7,7 +7,7 @@ String serialData;
 String[][] serialStrings = new String[5][3];  //5 fingers, 3 values (the joint angles)
 
 float grid = 400;
-float angGlobal = 0;
+int spinAngGlobal = 0, yawAngGlobal;
 
 color WHITE = #FFFFFF;
 color RED = #FF0000;
@@ -16,7 +16,7 @@ color GREEN = #00FF00;
 color BLACK = #000000;
 
 class imuData{
-    float[] angle = new float[3];
+    float[] angle = new float[4];
 }
 
 imuData[] imuGlobalObj = new imuData[5];
@@ -55,75 +55,36 @@ void draw(){
     //drawFingerFunc2D();
 
     getSerialData();
-    translate((width/2),(height/2),-100);  
-    rotateX(radians(-45));    //rotating the entire finger
-    rotateY(radians(angGlobal));    //rotating the entire finger
+    
     background(0);
     //draw3DExample(imuGlobalObj[0].angle, 0);
-    draw3DExample(imuGlobalObj[1].angle, 50);
-    //draw3DExample(imuGlobalObj[2].angle, 100);
-    draw3DExample(imuGlobalObj[3].angle, 150);
-    draw3DExample(imuGlobalObj[4].angle, 200);
-    
-}
 
-void drawFingerFunc2D(){
-    getSerialData();
-    
-    background(15,20,30);
+    translate((width/2),(height/2),-100);
+    rotateX(radians(imuGlobalObj[0].angle[3]));
+    rotateY(radians(spinAngGlobal));
 
-    //drawFinger2D(imuGlobalObj[0].angle, width/2, height/2, RED);
-    drawFinger2D(imuGlobalObj[1].angle, width/2, height/2, GREEN);
-    //drawFinger2D(imuGlobalObj[2].angle, width/2, height/2, WHITE);
-    drawFinger2D(imuGlobalObj[3].angle, width/2, height/2, BLUE);
-    drawFinger2D(imuGlobalObj[4].angle, width/2, height/2, BLACK);
-}
-
-void drawFinger2D(float jointAng[], float x, float y, int colour){
-    char fingerLen = 100, fingerWid = 10;
-    float[] angleSum = new float[3];
-
-    angleSum[0] = radians(jointAng[2]);
-    angleSum[1] = radians(jointAng[2] + jointAng[1]);
-    angleSum[2] = radians(jointAng[2] + jointAng[1] + jointAng[0]);
-    
-    //drawing the palm/hand
     push();
-    fill(colour);
-    translate(x-fingerLen, y);
-    rotate(0);
-    rect(0,0,fingerLen,fingerWid);
-    rectMode(CORNER);
-    pop();
-
-    for(char i = 0; i < 2; i++)
-    {
         push();
-        fill(colour);
-        translate(x, y);
-        rotate(angleSum[i]);
-        rect(0,0,fingerLen,fingerWid);
-        rectMode(CORNER);
+        translate(0,0,0);  
+        draw3DExample(imuGlobalObj[2].angle,0,0,0,yawAngGlobal, WHITE);
         pop();
 
-        x = x + fingerLen*cos(angleSum[i]);
-        y = y + fingerLen*sin(angleSum[i]);
-    }
+        push();
+        translate(0,0,50);  
+        draw3DExample(imuGlobalObj[3].angle,0,0,0,0, RED);
+        pop();
 
-    push();
-    fill(colour);
-    translate(x, y);
-    rotate(angleSum[2]);
-    rect(0,0,fingerLen,fingerWid);
-    rectMode(CORNER);
+        push();
+        translate(0,0,100);  
+        draw3DExample(imuGlobalObj[4].angle,0,0,0,0, GREEN);
+        pop();
     pop();
-
-    println(jointAng);
+    //draw3DExample(imuGlobalObj[4].angle,0,0,0,0);
+    
 }
 
 
-void draw3DExample(float jointAng[], float z){
-    float x = 0, y = 0;
+void draw3DExample(float jointAng[], float x, float y, float z, float yawAngle, int colour){
     char fingerLen = 100, fingerWid = 10;
     float[] xCenter = new float[4];
     float[] yCenter = new float[4];
@@ -139,9 +100,10 @@ void draw3DExample(float jointAng[], float z){
     //drawing the skeleton
     push();
         translate(x,y,z); 
+        rotateY(radians(yawAngle));
         //first line
         push();
-        stroke(255);
+        stroke(colour);
         line(x, y, 0, x + fingerLen, y, 0);
         translate(x,y);
         sphere(5);
@@ -154,7 +116,7 @@ void draw3DExample(float jointAng[], float z){
         //first line center
         push();
         translate(xCenter[0], yCenter[0], 0);
-        stroke(255);
+        stroke(colour);
         noFill();
         box(fingerLen,10,fingerWid);
         sphere(5);
@@ -165,7 +127,7 @@ void draw3DExample(float jointAng[], float z){
         jointCoord[0][0] = x + fingerLen;
         jointCoord[0][1] = y;
         translate(jointCoord[0][0], jointCoord[0][1]);
-        stroke(255);
+        stroke(colour);
         sphere(5);
         pop();
 
@@ -179,7 +141,7 @@ void draw3DExample(float jointAng[], float z){
             translate(xCenter[i], yCenter[i]);
     
             rotateZ(angleSum[i-1]);
-            stroke(255);
+            stroke(colour);
             noFill();
             box(fingerLen,10,fingerWid);
             sphere(5);
@@ -190,13 +152,13 @@ void draw3DExample(float jointAng[], float z){
             jointCoord[i][0] = jointCoord[i-1][0] + (fingerLen)*cos(angleSum[i-1]);
             jointCoord[i][1] = jointCoord[i-1][1] + (fingerLen)*sin(angleSum[i-1]);
             translate(jointCoord[i][0], jointCoord[i][1]);
-            stroke(255);
+            stroke(colour);
             sphere(5);
             pop();
 
             //drawing the line
             push();
-            stroke(255);
+            stroke(colour);
             line(jointCoord[i-1][0], jointCoord[i-1][1], 0, jointCoord[i][0], jointCoord[i][1], 0);
             pop();
 
@@ -206,22 +168,25 @@ void draw3DExample(float jointAng[], float z){
 }
 
 void mouseMoved() {
-    angGlobal++;
+    spinAngGlobal++;
 }
 
+void mouseDragged() {
+    yawAngGlobal++;
+}
 
 void getSerialData(){
   if( port.available() > 0) // If data is available,
   { 
     serialData = port.readStringUntil('\n');         // read the entire string until the newline
-    String[] receiveVar = new String[4];
+    String[] receiveVar = new String[5];
     int indexNo;
     //splitting the string
     receiveVar = split(serialData, " ");  // index 0 finger strip num, 1 jointAng1(tip), 2 jointAng2(mid), 3 jointAng3(base) 
     indexNo = int(receiveVar[0]);  //println(indexNo);
 
     //storing the values into an imu object
-    for(char i = 0; i < 3; i++)
+    for(char i = 0; i < 4; i++)
     {
         imuGlobalObj[indexNo].angle[i] = parseFloat(receiveVar[i+1]);   //println(imuGlobalObj[indexNo].angle[i]);
     }
