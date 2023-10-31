@@ -33,7 +33,7 @@ int WHITE = 0xFFFFFFFF;
 int RED = 0xFFFF0000;
 int BLUE = 0xFF0000FF;
 int GREEN = 0xFF00FF00;
-int BLACK = 0xFF000000;
+int YELLOW = 0xFFFFFF00;
 
 class imuData{
     float[] angle = new float[4];
@@ -86,22 +86,27 @@ imuData[] imuGlobalObj = new imuData[5];
     push();
         push();
         translate(0,0,0);  
-        draw3DExample(imuGlobalObj[1].angle,0,0,0,yawAngGlobal, BLUE);
+        draw3DExample(imuGlobalObj[0].angle,0,0,0,45, BLUE);
         pop();
 
         push();
         translate(0,0,50);  
-        draw3DExample(imuGlobalObj[2].angle,0,0,0,yawAngGlobal, WHITE);
+        draw3DExample(imuGlobalObj[1].angle,0,0,0,yawAngGlobal, WHITE);
+        pop();
+
+        push();
+        translate(0,0,100);  
+        draw3DExample(imuGlobalObj[2].angle,0,0,0,0, RED);
         pop();
 
         push();
         translate(0,0,150);  
-        draw3DExample(imuGlobalObj[3].angle,0,0,0,0, RED);
+        draw3DExample(imuGlobalObj[3].angle,0,0,0,0, GREEN);
         pop();
 
         push();
         translate(0,0,200);  
-        draw3DExample(imuGlobalObj[4].angle,0,0,0,0, GREEN);
+        draw3DExample(imuGlobalObj[4].angle,0,0,0,0, YELLOW);
         pop();
     pop();
     //draw3DExample(imuGlobalObj[4].angle,0,0,0,0);
