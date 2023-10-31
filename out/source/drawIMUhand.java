@@ -86,16 +86,21 @@ imuData[] imuGlobalObj = new imuData[5];
     push();
         push();
         translate(0,0,0);  
-        draw3DExample(imuGlobalObj[2].angle,0,0,0,yawAngGlobal, WHITE);
+        draw3DExample(imuGlobalObj[1].angle,0,0,0,yawAngGlobal, BLUE);
         pop();
 
         push();
         translate(0,0,50);  
+        draw3DExample(imuGlobalObj[2].angle,0,0,0,yawAngGlobal, WHITE);
+        pop();
+
+        push();
+        translate(0,0,150);  
         draw3DExample(imuGlobalObj[3].angle,0,0,0,0, RED);
         pop();
 
         push();
-        translate(0,0,100);  
+        translate(0,0,200);  
         draw3DExample(imuGlobalObj[4].angle,0,0,0,0, GREEN);
         pop();
     pop();
