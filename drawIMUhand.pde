@@ -16,7 +16,9 @@ color GREEN = #00FF00;
 color YELLOW = #FFFF00;
 
 class imuData{
-    float[] angle = new float[4];
+    float[] jointAngle = new float[4];
+    float yawAngle;
+    float palmAngle;
 }
 
 imuData[] imuGlobalObj = new imuData[5];
@@ -50,51 +52,46 @@ void serialSetup(){
 }
 
 void draw(){
-    //drawFinger3d(width/2, height/2);
-    //camera(mouseX, height/2, (height/2) / tan(PI/6), mouseX, height/2, 0, 0, 1, 0);
-    //drawFingerFunc2D();
-
     getSerialData();
     
     background(0);
-    //draw3DExample(imuGlobalObj[0].angle, 0);
 
     translate((width/2),(height/2),-100);
-    rotateX(radians(imuGlobalObj[0].angle[3]));
+    rotateX(radians(imuGlobalObj[0].palmAngle));
     rotateY(radians(spinAngGlobal));
 
     push();
         push();
         translate(0,0,0);  
-        draw3DExample(imuGlobalObj[0].angle,0,0,0,45, BLUE);
+        //draw3DExample(imuGlobalObj[0],45, BLUE);
         pop();
 
         push();
         translate(0,0,50);  
-        draw3DExample(imuGlobalObj[1].angle,0,0,0,yawAngGlobal, WHITE);
+        draw3DExample(imuGlobalObj[1],imuGlobalObj[1].yawAngle, WHITE);
         pop();
 
         push();
         translate(0,0,100);  
-        draw3DExample(imuGlobalObj[2].angle,0,0,0,0, RED);
+        draw3DExample(imuGlobalObj[2],imuGlobalObj[2].yawAngle, RED);
         pop();
 
         push();
         translate(0,0,150);  
-        draw3DExample(imuGlobalObj[3].angle,0,0,0,0, GREEN);
+        draw3DExample(imuGlobalObj[3],imuGlobalObj[3].yawAngle, GREEN);
         pop();
 
         push();
         translate(0,0,200);  
-        draw3DExample(imuGlobalObj[4].angle,0,0,0,0, YELLOW);
+        draw3DExample(imuGlobalObj[4],imuGlobalObj[4].yawAngle, YELLOW);
         pop();
     pop();
-    //draw3DExample(imuGlobalObj[4].angle,0,0,0,0);
     
 }
 
 
-void draw3DExample(float jointAng[], float x, float y, float z, float yawAngle, int colour){
+void draw3DExample(imuData imuDataObj, float yawAng, int colour){
+    float x = 0, y = 0, z = 0; 
     char fingerLen = 100, fingerWid = 10;
     float[] xCenter = new float[4];
     float[] yCenter = new float[4];
@@ -102,15 +99,14 @@ void draw3DExample(float jointAng[], float x, float y, float z, float yawAngle, 
     float[] angleSum = new float[3];
 
     //jointAng[0] = 45;   jointAng[1] = 45;   jointAng[2] = 45;
-
-    angleSum[0] = radians(jointAng[2]);
-    angleSum[1] = radians(jointAng[2] + jointAng[1]);
-    angleSum[2] = radians(jointAng[2] + jointAng[1] + jointAng[0]);
+    angleSum[0] = radians(imuDataObj.jointAngle[2]);
+    angleSum[1] = radians(imuDataObj.jointAngle[2] + imuDataObj.jointAngle[1]);
+    angleSum[2] = radians(imuDataObj.jointAngle[2] + imuDataObj.jointAngle[1] + imuDataObj.jointAngle[0]);
 
     //drawing the skeleton
     push();
         translate(x,y,z); 
-        rotateY(radians(yawAngle));
+        rotateY(radians(yawAng));
         //first line
         push();
         stroke(colour);
@@ -192,14 +188,17 @@ void getSerialData(){
     String[] receiveVar = new String[5];
     int indexNo;
     //splitting the string
-    receiveVar = split(serialData, " ");  // index 0 finger strip num, 1 jointAng1(tip), 2 jointAng2(mid), 3 jointAng3(base) 
+    receiveVar = split(serialData, " ");  // index 0 finger strip num, 1 jointAng1(tip), 2 jointAng2(mid), 3 jointAng3(base), yaw
     indexNo = int(receiveVar[0]);  //println(indexNo);
 
     //storing the values into an imu object
-    for(char i = 0; i < 4; i++)
+    for(char i = 0; i < 3; i++)
     {
-        imuGlobalObj[indexNo].angle[i] = parseFloat(receiveVar[i+1]);   //println(imuGlobalObj[indexNo].angle[i]);
+        imuGlobalObj[indexNo].jointAngle[i] = parseFloat(receiveVar[i+1]);   //println(imuGlobalObj[indexNo].jointAngle[i]);
     }
+
+    imuGlobalObj[indexNo].yawAngle = parseFloat(receiveVar[4]);
+    imuGlobalObj[indexNo].palmAngle = parseFloat(receiveVar[5]);
     port.clear();
   }
 }
